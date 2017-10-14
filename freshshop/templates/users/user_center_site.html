@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static from staticfiles %}
+{% block head %}
+    <script src="{% static 'js/province.js' %}" ></script>
+{% endblock %}
+{% block body %}
+        <div class="search_bar clearfix">
+		<a href="/index.html" class="logo fl"><img src="/static/images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+	</div>
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="{% url 'users:center_info' %}">· 个人信息</a></li>
+				<li><a href="#">· 全部订单</a></li>
+				<li><a href="{% url 'users:center_site'%}" class="active">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div class="right_content clearfix">
+				<h3 class="common_title2">收货地址</h3>
+				<div class="site_con">
+					<dl>
+						<dt>收货地址：</dt>
+                        {% for addr in address %}
+						    <dd>{{ addr.pro }} {{ addr.city }} {{ addr.dis }} {{ addr.detail }}({{ addr.recipients }} 收)
+                                {{ addr.aphone }} <a href="#edit" class="edits fl">编辑</a><span hidden>{{ addr.id }}</span><a href="/users/del_address/{{ addr.id }}" class="del_addr fr">删除</a></dd>
+                        {% endfor %}
+					</dl>					
+				</div>
+				<h3 class="common_title2" id="edit">编辑地址</h3>
+				<div class="site_con">
+					<form method="post" action="{% url 'users:address_handler' ''%}" id="form1">
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" name="shoujian" id="user">
+						</div>
+                        <div class="form_group">
+							<label>寄送地址：</label>
+							<select name="pro" id="pro">
+							    <option value="0">---请选择省---</option>
+							</select>
+							<select name="city" id="city">
+							    <option value="0">---请选择市---</option>
+							</select>
+							<select name="dis" id="dis">
+							    <option value="0">---请选择区---</option>
+							</select>
+						</div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea name="address" class="site_area"></textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" name="postcode" id="pc">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="" name="phone" id="phone">
+                            <span class="error_tip" style="display: none;color:red">手机号码为11位数字组合</span>
+						</div>
+
+						<input type="submit" name="" value="提交" class="info_submit">
+                        <span class="error_tip" style="display: none;color:red" id="empty">提示信息</span>
+					</form>
+				</div>
+		</div>
+	</div>
+{% endblock body %}
