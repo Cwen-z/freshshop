@@ -38,7 +38,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
-    'djcelery'
+    'djcelery',
+    'tinymce',
+    'goods',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -135,3 +137,9 @@ EMAIL_HOST_USER = '652674530@qq.com'
 EMAIL_HOST_PASSWORD = 'pengxyw932289245'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'width': 600,
+    'height': 400,
+}

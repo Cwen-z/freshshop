@@ -17,10 +17,6 @@ html,body{height:100%}
 	line-height:29px;
 }
 
-.login_info{
-	display:none;
-}
-
 .login_info em{color:#ff8800}
 
 .login_btn a,.user_link a{
@@ -203,9 +199,13 @@ html,body{height:100%}
 }
 
 .goods_type_list li{
-	width:196px;
+	width:320px;
 	float:left;
 	margin-bottom:10px
+}
+
+#recent li{
+	width:196px;
 }
 
 .goods_type_list li img{width:160px;height:160px;display:block;margin:10px auto;}

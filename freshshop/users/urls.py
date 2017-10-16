@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^register_handler/$', views.register_handler),
     url(r'^register_exist/$',views.register_exist),
     url(r'^login/$', views.login,name='login'),
+    url(r'^logout/$',views.logout,name='logout'),
     url(r'^center_info/$', views.center_info,name="center_info"),
     url(r'^center_site/$', views.center_site,name="center_site"),
     url(r'^pro_id/(\d*)$', views.pro_id),

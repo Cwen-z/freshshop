@@ -1,7 +1,9 @@
 # coding=utf-8
 from django.shortcuts import render,redirect
 from .models import *
+from goods.models import Goodsinfo
 from hashlib import sha1
+from login_validate import user_login
 from django.db import transaction
 from task import register_email
 from django.core.urlresolvers import reverse
@@ -56,7 +58,6 @@ def login(request):
     post = request.POST
     name = post.get('username')
     pwd = post.get('pwd')
-    print name
     user = Userinfo.objects.filter(uname=name)
     if len(user) == 0:
         content = {'title':'登录','error_name':1,'error_pwd':0,'uname':name,'upwd':pwd}
@@ -65,7 +66,8 @@ def login(request):
         m = sha1()
         m.update(pwd)
         if m.hexdigest() == user[0].upwd:
-            red = HttpResponseRedirect(reverse('users:center_info'))
+            url = request.COOKIES.get('url','/')
+            red = HttpResponseRedirect(url)
             if post.get('abc') == "1":
                 red.set_cookie('user_name',name)
             else:
@@ -73,6 +75,7 @@ def login(request):
             request.session['user_id'] = user[0].id
             request.session['user_name'] = name
             request.session['uphone'] = user[0].uphone
+            request.session.set_expiry(0)
             return red
         else:
             content = {'title': '登录', 'error_name': 0, 'error_pwd': 1, 'uname': name, 'upwd': pwd}
@@ -80,33 +83,36 @@ def login(request):
 
 
 @require_GET
+def logout(request):
+    request.session.flush()
+    return HttpResponseRedirect('/')
+
+@require_GET
+@user_login
 def center_info(request):
     id1 = request.session.get('user_id','')
-    if id1 == '':
-        content = {'title': '登录', 'error_name': 0, 'error_pwd': 0, 'uname': '', 'upwd': ''}
-        return redirect('/users/login/')
     user = Userinfo.objects.get(id=id1)
     phone = request.session.get('uphone','')
-    print user.uemail
-    if phone == '':
-        content = {'title':'用户中心','uname': request.session['user_name'], 'email': user.uemail,
-                   'phone_error':1,'phone':phone}
-        return render(request,'users/user_center_info.html',content)
+    goods_ids = request.COOKIES.get('goods_ids','')
+    if goods_ids != '':
+        goods_ids_list = goods_ids.split(',')
+        goods_list = []
+        for goods_id in goods_ids_list:
+            goods_list.append(Goodsinfo.objects.get(id=int(goods_id)))
     else:
-        content = {'title':'用户中心','uname':request.session['user_name'],'email':user.uemail,
-                   'phone_error':0,'phone':phone}
-        return render(request, 'users/user_center_info.html', content)
+        goods_list = ""
+    content = {'title':'用户中心','uname':request.session.get('user_name',''),'email':user.uemail,
+               'phone_error':0,'phone':phone,'page_num':1,'goods_list':goods_list}
+    return render(request, 'users/user_center_info.html', content)
 
 
 @require_http_methods(['GET','POST'])
+@user_login
 def center_site(request):
     sid = request.session.get('user_id','')
-    if sid == '':
-        content = {'title': '登录', 'error_name': 0, 'error_pwd': 0, 'uname': '', 'upwd': ''}
-        return render(request,'users/login.html',content)
     user = Userinfo.objects.get(id=sid)
     address = user.addressinfo_set.all()
-    return render(request,'users/user_center_site.html',{'address': address})
+    return render(request,'users/user_center_site.html',{'address': address,'page_num':1})
 
 
 @require_http_methods(['GET','POST'])
@@ -125,7 +131,6 @@ def pro_id(request, p1):
 @require_POST
 def address_handler(request,p1):
     post = request.POST
-    print p1
     pid, cid, did = post.get('pro'), post.get('city'), post.get('dis')
     t1 = Areasinfo.objects.get(id=pid)
     t2 = Areasinfo.objects.get(id=cid)
