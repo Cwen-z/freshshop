@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block head %}
+    <script>
+    function total() {
+        var totals = 0;
+        $('.col07').each(function () {
+            var count =$(this).prev().find('input').val();
+            var price =$(this).prev().prev().text();
+            total1 = parseFloat(price) * parseFloat(count);
+            $(this).text(total1.toFixed(2))
+            if ($(this).siblings().find(':checkbox').prop('checked')){
+                totals +=total1
+            }
+
+        })
+        $('#total').text(totals.toFixed(2))
+    }
+
+    function del_cart(cid) {
+        news = confirm("客官，消费让工作更愉快，确认删除吗？");
+        if (news){
+            $.post('/cart/del_cart_'+cid,function (data) {
+                if (data.status == 0){
+                    $('ul').remove('#'+cid)
+                    total();
+                }
+                else{
+                    alert("粗事了，删除失败，请与管理员联系");
+                    return;
+                }
+                var value1 = $('#count_top').text()
+                var value2 = $('#count_buttom').text()
+                $('#count_top').text(value1-1)
+                $('#count_buttom').text(value2-1)
+            })
+        }
+    }
+
+    $(function () {
+        total()
+        var value1 = $('#count_top').text()
+        //var value2 = $('#count_buttom').text()
+        $('#check_all').click(function () {
+            var state = $(this).prop('checked');
+            $(':checkbox:not(#check_all)').prop('checked',state);
+            if(state == false){
+                $('li #count_buttom').text(0)
+                $('#count_top').text(0)
+            }else{
+                $('li #count_buttom').text(value1)
+                $('#count_top').text(value1)
+            }
+            total()
+        })
+        $(':checkbox:not(#check_all)').click(function () {
+            if($(this).prop('checked')){
+                if ($(':checked').length+1 == $(':checkbox').length){
+                    $('#check_all').prop('checked',true);
+                    $('li #count_buttom').text(value1)
+                    $('#count_top').text(value1)
+                }
+            }else{
+                $('#check_all').prop('checked',false);
+                var leng = $(':checked').length
+                $('li #count_buttom').text(leng)
+                $('#count_top').text(leng)
+            }
+            total()
+        })
+        $('.add').click(function () {
+            var $count = $(this).next('input')
+            var num = parseFloat($count.val());
+            $count.val(num +=1);
+            $count.blur()
+        })
+        $('.minus').click(function () {
+            var $count = $(this).prev('input')
+            var num = parseFloat($count.val());
+            if(num <= 1){
+                alert("别调皮，再往下就亏本了");
+                return;
+            }
+            $count.val(num -=1);
+            $count.blur()
+        })
+        $('.num_show').blur(function () {
+            var num = parseInt($(this).val())
+            if (num<=0 || isNaN(num)){
+                alert("高抬贵手，请输入正常数量")
+                $(this).val(1)
+                $(this).focus()
+                return;
+            }
+            var cid = $(this).parents('.cart_list_td').attr('id');
+            $.post('/cart/cart_edit/'+cid+'_'+num,function (data) {
+                if (data.count == num){
+                    total()
+                }
+                else{
+                    $(this).val(count)
+                    alert("我的天，修改失败，请重新修改或联系管理员")
+                }
+            })
+        })
+    })
+    </script>
+{% endblock head %}
+{% block body %}
+	<div class="total_count">全部商品<em id="count_top">{{ carts.count }}</em>件</div>
+	<ul class="cart_list_th clearfix">
+		<li class="col01">商品名称</li>
+		<li class="col02">商品单位</li>
+		<li class="col03">商品价格</li>
+		<li class="col04">数量</li>
+		<li class="col05">小计</li>
+		<li class="col06">操作</li>
+	</ul>
+    {% for cart in carts %}
+	<ul class="cart_list_td clearfix" id="{{ cart.id }}">
+		<li class="col01"><input type="checkbox" name="" checked></li>
+		<li class="col02"><img src="/static/media/{{ cart.goods.gpic }}"></li>
+		<li class="col03">{{ cart.goods.gtitle }}<br><em>{{ cart.goods.gprice }}元/{{ cart.goods.gunit }}</em></li>
+		<li class="col04">{{ cart.goods.gunit }}</li>
+		<li class="col05"><em id="col05">{{ cart.goods.gprice }}</em>元</li>
+		<li class="col06">
+			<div class="num_add">
+				<a href="javascript:;" class="add fl">+</a>
+				<input type="text" class="num_show fl" value="{{ cart.counts }}">
+				<a href="javascript:;" class="minus fl">-</a>
+                <span hidden>{{ cart.goods.id }}</span>
+			</div>
+		</li>
+		<li class="col07">1</li>
+		<li class="col08"><a href="javascript:del_cart({{ cart.id }});">删除</a></li>
+	</ul>
+{% endfor %}
+	<ul class="settlements">
+		<li class="col01"><input type="checkbox" name="" checked="" id="check_all"></li>
+		<li class="col02">全选</li>
+		<li class="col03">合计(不含运费)：<span>¥</span><em id="total">42.60</em><br>共计<b id="count_buttom">{{ carts.count|default:0 }}</b>件商品</li>
+		<li class="col04"><a href="place_order.html">去结算</a></li>
+	</ul>
+{% endblock body %}

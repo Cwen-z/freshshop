@@ -112,7 +112,7 @@ def center_site(request):
     sid = request.session.get('user_id','')
     user = Userinfo.objects.get(id=sid)
     address = user.addressinfo_set.all()
-    return render(request,'users/user_center_site.html',{'address': address,'page_num':1})
+    return render(request,'users/user_center_site.html',{'title':'用户中心','address': address,'page_num':1})
 
 
 @require_http_methods(['GET','POST'])

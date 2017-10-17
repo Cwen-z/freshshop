@@ -15,6 +15,15 @@
         $('.num_show').blur();
     }
     $(function () {
+        $.get('/cart/cart_nums/',function (data) {
+            var nums = data.status
+            if (nums != 0){
+                $('#show_count').text(nums)
+            }
+            else{
+                $('#show_count').text(0)
+            }
+        })
         $('.num_show').blur(function () {
             num = parseInt($('.num_show').val());
             if (num<=1){
@@ -56,7 +65,7 @@
 	<div class="breadcrumb">
 		<a href="/">全部分类</a>
 		<span>></span>
-		<a href="#">{{ title1 }}</a>
+		<a href='/goods/{{ goods.gtype_id }}/1/1'>{{ title1 }}</a>
 		<span>></span>
 		<a href="#">商品详情</a>
 	</div>
@@ -118,11 +127,11 @@
 
 		</div>
 	</div>
-	<div class="add_jump"></div>
+
 {% endblock body %}
 
     {% block foot %}
-	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+    <div class="add_jump1"></div>
 	<script type="text/javascript">
 		var $add_x = $('#add_cart').offset().top;
 		var $add_y = $('#add_cart').offset().left;
@@ -130,19 +139,24 @@
 		var $to_x = $('#show_count').offset().top;
 		var $to_y = $('#show_count').offset().left;
 
-		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
 		$('#add_cart').click(function(){
-			$(".add_jump").stop().animate({
+		    $(".add_jump1").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+		    //判断用户是否登录，如果没登录则提示转向登录页面
+            if($('.login_btn').text().indexOf('登录')>=0){
+                alert("悟空，记得要先登录，后购买");
+                location.href = '/users/login/';
+                return
+            }
+			$(".add_jump1").stop().animate({
 				'left': $to_y+7,
 				'top': $to_x+7},
 				"fast", function() {
-					$(".add_jump").fadeOut('fast',function(){
-						$('#show_count').html(2);
-					});
-
-			});
+					$(".add_jump1").fadeOut('fast',function(){});
+                });
+            count = parseInt($('.num_show').val())
+		    $.get('/cart/add_cart/{{ goods.id }}_'+count,function (data) {
+                value = data.counts;
+                $('#show_count').text(value);
+            })
 		})
-	</script>{% endblock %}
-	
-</body>
-</html>
+	</script>{% endblock%}

@@ -1,4 +1,20 @@
 {% extends 'base.html' %}
+{% block head %}
+    <script>
+
+    $(function () {
+        $.get('/cart/cart_nums/',function (data) {
+            var nums = data.status
+            if (nums != 0){
+                $('#show_count').text(nums)
+            }
+            else{
+                $('#show_count').text(0)
+            }
+        })
+    })
+    </script>
+{% endblock head %}
 {% block body %}
 	<div class="navbar_con">
 		<div class="navbar clearfix">
@@ -17,9 +33,9 @@
 			<ul class="navlist fl">
 				<li><a href="/">首页</a></li>
 				<li class="interval">|</li>
-				<li><a href="">手机生鲜</a></li>
+				<li><a href="javascript:;">手机生鲜</a></li>
 				<li class="interval">|</li>
-				<li><a href="">抽奖</a></li>
+				<li><a href="javascript:;">抽奖</a></li>
 			</ul>
 		</div>
 	</div>
@@ -73,7 +89,8 @@
 					<div class="operate">
 						<span class="prize">￥{{ goods.gprice }}</span>
 						<span class="unit">{{ goods.gunit }}</span>
-						<a href="#" class="add_goods" title="加入购物车"></a>
+						<a href="javascript:;" class="add_goods" title="加入购物车"></a>
+                        <span hidden>{{ goods.id }}</span>
 					</div>
 				</li>
                 {% endfor %}
@@ -98,3 +115,37 @@
 		</div>
 	</div>
 {% endblock body %}
+
+    {% block foot %}
+    <div class="add_jump"></div>
+	<script type="text/javascript">
+		var $add_x = $('.goods_count').offset().top;
+		var $add_y = $('.goods_count').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+
+		$('.add_goods').click(function() {
+            $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+            if ($('.login_btn').text().indexOf('登录') >= 0) {
+                alert("悟空，记得要先登录，后购买");
+                location.href = '/users/login/';
+                return
+            }
+            $(".add_jump").stop().animate({
+                    'left': $to_y + 7,
+                    'top': $to_x + 7
+                },
+                "fast", function () {
+                    $(".add_jump").fadeOut('fast', function () {
+                    });
+                });
+            gid = $(this).next('span').html()
+            $.get('/cart/add_cart/' + gid + '_1', function (data) {
+                value = data.counts;
+                $('#show_count').text(value);
+            })
+        })
+	</script>
+    {% endblock%}

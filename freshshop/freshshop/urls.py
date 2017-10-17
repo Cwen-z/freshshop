@@ -20,5 +20,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/',include('users.urls',namespace="users")),
     url(r'^tinymce/', include('tinymce.urls')),
-    url(r'^',include('goods.urls',namespace='goods'))
+    url(r'^',include('goods.urls',namespace='goods')),
+    url(r'^cart/',include('shoppingCart.urls',namespace='shopping'))
 ]

@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'djcelery',
     'tinymce',
     'goods',
+    'shoppingCart',
 )
 
 MIDDLEWARE_CLASSES = (

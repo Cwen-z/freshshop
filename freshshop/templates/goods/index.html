@@ -2,6 +2,19 @@
 {% block head %}
 	<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/static/js/slide.js"></script>
+    <script>
+    $(function () {
+        $.get('/cart/cart_nums/',function (data) {
+            var nums = data.status
+            if (nums != 0){
+                $('#show_count').text(nums)
+            }
+            else{
+                $('#show_count').text(0)
+            }
+        })
+    })
+    </script>
 {% endblock head %}
 {% block body %}
 	<div class="navbar_con">
@@ -160,7 +173,7 @@
 		</div>
 
 		<div class="goods_con clearfix">
-			<div class="goods_banner fl"><img src="/static/images/banner05.jpg"></div>
+			<div class="goods_banner fl"><img src="/static/images/banner06.jpg"></div>
 			<ul class="goods_list fl">
 				{% for goods4 in type4 %}
 				<li>
@@ -186,7 +199,7 @@
 		</div>
 
 		<div class="goods_con clearfix">
-			<div class="goods_banner fl"><img src="/static/images/banner0.jpg"></div>
+			<div class="goods_banner fl"><img src="/static/images/banner05.jpg"></div>
 			<ul class="goods_list fl">
 				{% for goods5 in type5 %}
 				<li>
@@ -200,7 +213,6 @@
 	</div>
 {% endblock body %}
     {% block foot %}
-	<script type="text/javascript" src="js/slideshow.js"></script>
 	<script type="text/javascript">
 		BCSlideshow('focuspic');
 		var oFruit = document.getElementById('fruit_more');
