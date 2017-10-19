@@ -78,9 +78,9 @@ $(function(){
 		{
             $.get('/users/register_exist/?name='+$('#user_name').val(),function (data) {
                 list = data.count
-                if(list[0].user_num==1){
+                if(list[0].user_num != 0){
                     $('#user_name').next().html("用户名被注册了，换换").show()
-                    error_password = true;
+                    error_name = true;
                     }
                 else{
 
@@ -205,13 +205,6 @@ $(function(){
 
 
 	$('.reg_form').submit(function() {
-
-		check_user_name();
-		check_pwd();
-		check_cpwd();
-		check_email();
-		check_phone();
-
 		if(error_name == false && error_password == false && error_check_password == false && error_email == false && error_check == false && error_phone == false)
 		{
 			return true;

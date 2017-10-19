@@ -21,5 +21,7 @@ urlpatterns = [
     url(r'^users/',include('users.urls',namespace="users")),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^',include('goods.urls',namespace='goods')),
-    url(r'^cart/',include('shoppingCart.urls',namespace='shopping'))
+    url(r'^cart/',include('shoppingCart.urls',namespace='shopping')),
+    url(r'^order/',include('order.urls',namespace='order')),
+    #url(r'^search/', include('haystack.urls')),
 ]

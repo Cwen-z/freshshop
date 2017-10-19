@@ -9,3 +9,4 @@ class TypeAdmin(admin.ModelAdmin):
 class GoodsAdmin(admin.ModelAdmin):
     list_display = ['gtitle', 'gprice', 'gunit', 'grepertory','gclick','gtype']
     list_per_page = 10
+    search_fields = ('gtitle','gcontent')

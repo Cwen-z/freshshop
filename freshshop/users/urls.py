@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^address_handler/(\d*)$', views.address_handler, name='address_handler'),
     url(r'^editor/(\d*)$',views.editor),
     url(r'^del_address/(\d*)$',views.del_address),
+    url(r'^center_order/(\d+)$',views.center_order,name="center_order"),
 ]

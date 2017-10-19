@@ -1,9 +1,11 @@
 # coding=utf-8
 from django.shortcuts import render
 from .models import *
+from shoppingCart.models import Carinfo
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_GET
 from django.http import HttpResponse
+from haystack.views import SearchView
 # Create your views here.
 
 @require_GET
@@ -23,7 +25,12 @@ def index(request):
     type41 = type[4].goodsinfo_set.order_by('-gclick')[:3]
     type5 = type[5].goodsinfo_set.order_by('-id')[:4]
     type51 = type[5].goodsinfo_set.order_by('-gclick')[:3]
-    content = {'title':'首页','page_num':2,'type':type,
+    uid = request.session.get('user_id', '')
+    nums = 0
+    if uid != '':
+        nums = Carinfo.objects.filter(user_id=uid).count()
+    content = {'page_num':2,'title':'首页',
+               'nums':nums,'type':type,
                'type0':type0,'type01':type01,
                'type1':type1,'type11':type11,
                'type2':type2,'type21':type21,
@@ -43,7 +50,12 @@ def detail(request,p1):
     goods.save()
     title1 = goods.gtype.title
     news = goods.gtype.goodsinfo_set.order_by('-id')[:2]
-    content = {'title':'商品详情','title1':title1,'page_num':2,'goods':goods,'news':news,'type':type}
+    repertory = goods.grepertory
+    uid = request.session.get('user_id', '')
+    nums = 0
+    if uid != '':
+        nums = Carinfo.objects.filter(user_id=uid).count()
+    content = {'page_num':2,'title':'商品详情','nums':nums,'title1':title1,'goods':goods,'news':news,'type':type,'repertory':repertory}
     response = render(request,'goods/detail.html',content)
     goods_ids = request.COOKIES.get('goods_ids', '')
     if goods_ids != '':
@@ -73,9 +85,35 @@ def good_list(request,tid,sort,pn):
         goods = type.goodsinfo_set.order_by('-gclick')
     paginator = Paginator(goods, 9)
     page = paginator.page(int(pn))
-    content = {'title':'商品列表','type1':type,'page_num':2,'page':page,'paginator':paginator,
+    uid = request.session.get('user_id', '')
+    nums = 0
+    if uid != '':
+        nums = Carinfo.objects.filter(user_id=uid).count()
+    content = {'page_num':2,'title':'商品列表','nums':nums,'type1':type,'page':page,'paginator':paginator,
                'news':news,'type':types,'sort':int(sort)}
     response = render(request, 'goods/list.html', content)
     response.set_cookie('url', request.get_full_path())
     return response
 
+# 获取当前用户的购物车数量
+def cart_count(request):
+    if request.session.has_key('user_id'):
+        return Carinfo.objects.filter(user_id=request.session['user_id']).count()
+    else:
+        return 0
+
+def type_list(request):
+    if request.session.has_key('user_id'):
+        return Typeinfo.objects.all()
+    else:
+        return ''
+
+# 自定义搜索页面的上下文
+class MySearch(SearchView):
+    def extra_context(self):
+        context = super(MySearch, self).extra_context()
+        context['title'] = '搜索'
+        context['page_num'] = 2
+        context['nums'] = cart_count(self.request)
+        context['type'] = type_list(self.request)
+        return context

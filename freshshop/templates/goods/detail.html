@@ -3,6 +3,12 @@
     <script>
     function add(){
         num = parseFloat($('.num_show').val());
+        repertory = $('.kucun em').text()
+        if (num >= repertory ){
+            alert("已达最大购买数量，请留意库存信息")
+            num = repertory
+            return
+        }
         $('.num_show').val(num +=1);
         $('.num_show').blur();
     }
@@ -15,25 +21,44 @@
         $('.num_show').blur();
     }
     $(function () {
-        $.get('/cart/cart_nums/',function (data) {
-            var nums = data.status
-            if (nums != 0){
-                $('#show_count').text(nums)
-            }
-            else{
-                $('#show_count').text(0)
-            }
-        })
         $('.num_show').blur(function () {
             num = parseInt($('.num_show').val());
-            if (num<=1){
+            repertory = $('.kucun em').text()
+            if (num<=0 || isNaN(num)){
+                alert("老板，请输入正常数量")
                 num = 1;
+                $(this).focus()
+            }
+            if (num >= repertory){
+                alert("已达最大购买数量，请留意库存信息")
+                num = repertory
             }
             price = parseFloat($('.price').text());
             total = parseFloat((num*100) * (price*100))/10000;
             $('.num_show').val(num)
             $('.gtotal').text(total.toFixed(2)+'元')
         })
+        $('.buy_btn').click(function(){
+		    //判断用户是否登录，如果没登录则提示转向登录页面
+            if($('.login_btn').text().indexOf('登录')>=0){
+                alert("悟空，记得要先登录，后购买");
+                location.href = '/users/login/';
+                return
+            }
+
+            var count = parseInt($('.num_show').val())
+            var num = parseInt($('#show_count').text())
+		    $.get('/cart/add_cart/{{ goods.id }}_'+count,function (data) {
+		        var num1 = data.counts
+                if(num1 == num+1 || num1 == num){
+                    location.href = '/cart/';
+                }
+                else {
+                    alert("购买失败，请刷新后重试")
+                }
+            })
+
+		})
     })
     </script>
 {% endblock %}
@@ -74,21 +99,23 @@
 		<div class="goods_detail_pic fl"><img src="/static/media/{{ goods.gpic }}"></div>
 
 		<div class="goods_detail_list fr">
-			<h3>{{ goods.gtitle }}</h3>
+			<h3 >{{ goods.gtitle }}</h3>
 			<p>{{ goods.gdetail }}</p>
 			<div class="prize_bar">
 				<span class="show_pirze">¥<em class="price">{{ goods.gprice }}</em></span>
-				<span class="show_unit">单  位：{{ goods.gunit }}</span>
+				<span class="show_unit" >单  位：{{ goods.gunit }}</span>
 			</div>
 			<div class="goods_num clearfix">
-				<div class="num_name fl">数 量：</div>
+				<div class="num_name fl" >数 量：</div>
 				<div class="num_add fl">
 					<input type="text" class="num_show fl" value="1">
 					<a href="javascript:add();" class="add fr">+</a>
 					<a href="javascript:minus();" class="minus fr">-</a>
-				</div> 
+                    <span class="kucun">库存：<em>{{ repertory }}</em></span>
+				</div>
+
 			</div>
-			<div class="total">总价：<em class="gtotal">{{ goods.gprice }}元</em></div>
+			<div class="total" >总价：<em class="gtotal">{{ goods.gprice }}元</em></div>
 			<div class="operate_btn">
 				<a href="javascript:;" class="buy_btn">立即购买</a>
 				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
@@ -159,4 +186,5 @@
                 $('#show_count').text(value);
             })
 		})
+
 	</script>{% endblock%}

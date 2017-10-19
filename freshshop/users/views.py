@@ -7,6 +7,8 @@ from login_validate import user_login
 from django.db import transaction
 from task import register_email
 from django.core.urlresolvers import reverse
+from order.models import *
+from django.core.paginator import Paginator
 from django.http import HttpResponse,JsonResponse,HttpResponseRedirect
 from django.views.decorators.http import require_http_methods,require_GET,require_POST
 # Create your views here.
@@ -36,7 +38,7 @@ def register_handler(request):
     user.uemail = email
     user.uphone = phone
     user.save()
-    # register_email.delay(name,email)
+    register_email.delay(name,email)
     return render(request,'users/login.html')
 
 
@@ -101,8 +103,8 @@ def center_info(request):
             goods_list.append(Goodsinfo.objects.get(id=int(goods_id)))
     else:
         goods_list = ""
-    content = {'title':'用户中心','uname':request.session.get('user_name',''),'email':user.uemail,
-               'phone_error':0,'phone':phone,'page_num':1,'goods_list':goods_list}
+    content = {'page_num':1,'title':'用户中心','uname':request.session.get('user_name',''),'email':user.uemail,
+               'phone_error':0,'phone':phone,'goods_list':goods_list}
     return render(request, 'users/user_center_info.html', content)
 
 
@@ -112,7 +114,7 @@ def center_site(request):
     sid = request.session.get('user_id','')
     user = Userinfo.objects.get(id=sid)
     address = user.addressinfo_set.all()
-    return render(request,'users/user_center_site.html',{'title':'用户中心','address': address,'page_num':1})
+    return render(request,'users/user_center_site.html',{'page_num':1,'title':'用户中心','address': address})
 
 
 @require_http_methods(['GET','POST'])
@@ -143,6 +145,8 @@ def address_handler(request,p1):
         address = Addressinfo()
     with transaction.atomic():
         address.recipients, address.aphone, address.apostcode = post['shoujian'], post['phone'], post['postcode']
+        if t1.atitle == t2.atitle:
+            t2.atitle = ''
         address.pro, address.city, address.dis, address.detail = t1.atitle, t2.atitle, t3.atitle, det
         address.auser_id = request.session['user_id']
         address.save()
@@ -173,3 +177,17 @@ def del_address(request,p1):
     p2 = int(p1)
     Addressinfo.objects.get(id=p2).delete()
     return redirect(reverse('users:center_site'))
+
+
+@require_GET
+@user_login
+def center_order(request,p1):
+    orders = Orderinfo.objects.all()
+    paginator = Paginator(orders,3)
+    page_list =paginator.page_range
+    page = paginator.page(int(p1))
+    order_goods_list = []
+    for order in orders:
+        order_goods_list.append(order.orderdetail_set.all())
+    content = {'page_num':1,'title':'用户中心','orders':page,'page_list':page_list}
+    return render(request,'users/user_center_order.html',content)

@@ -1,20 +1,4 @@
 {% extends 'base.html' %}
-{% block head %}
-    <script>
-
-    $(function () {
-        $.get('/cart/cart_nums/',function (data) {
-            var nums = data.status
-            if (nums != 0){
-                $('#show_count').text(nums)
-            }
-            else{
-                $('#show_count').text(0)
-            }
-        })
-    })
-    </script>
-{% endblock head %}
 {% block body %}
 	<div class="navbar_con">
 		<div class="navbar clearfix">

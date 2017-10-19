@@ -9,7 +9,7 @@
 			<h3>用户中心</h3>
 			<ul>
 				<li><a href="{% url 'users:center_info' %}">· 个人信息</a></li>
-				<li><a href="#">· 全部订单</a></li>
+				<li><a href="{% url 'users:center_order' '1'%}">· 全部订单</a></li>
 				<li><a href="{% url 'users:center_site'%}" class="active">· 收货地址</a></li>
 			</ul>
 		</div>
@@ -20,7 +20,7 @@
 						<dt>收货地址：</dt>
                         {% for addr in address %}
 						    <dd>{{ addr.pro }} {{ addr.city }} {{ addr.dis }} {{ addr.detail }}({{ addr.recipients }} 收)
-                                {{ addr.aphone }} <a href="#edit" class="edits fl">编辑</a><span hidden>{{ addr.id }}</span><a href="/users/del_address/{{ addr.id }}" class="del_addr fr">删除</a></dd>
+                                {{ addr.aphone }} <a href="javascript:;" class="edits fl">编辑</a><span hidden>{{ addr.id }}</span><a href="/users/del_address/{{ addr.id }}" class="del_addr fr">删除</a></dd>
                         {% endfor %}
 					</dl>					
 				</div>

@@ -10,7 +10,7 @@ from django.views.decorators.http import require_GET,require_POST
 @user_login
 def cart(request):
     carts = Carinfo.objects.filter(user_id=request.session['user_id'])
-    content = {'title':'购物车','carts':carts,'page_num':1}
+    content = {'page_num':1,'title':'购物车','carts':carts}
     return render(request,'shoppingCart/cart.html',content)
 
 
